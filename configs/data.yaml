@@ -1,0 +1,28 @@
+# ===================================================================
+# Data Configuration for Qwen3-VL-4B-Instruct SFT
+# ===================================================================
+
+paths:
+  train_jsonl: "/data1/Sadia/RL_initial_datasets/Qwen_reasoning_samples_dme/qwen_train.jsonl"
+  val_jsonl:   "/data1/Sadia/RL_initial_datasets/Qwen_reasoning_samples_dme/qwen_val.jsonl"
+  test_jsonl:  "/data1/Sadia/RL_initial_datasets/Qwen_reasoning_samples_dme/qwen_test.jsonl"
+
+  # Most important: the directory where all images live
+  image_root: "/data1/Sadia/RL_initial_datasets/DME_VQA_Dataset/dme_vqa/visual"
+
+dataloader:
+  num_workers: 4         # safe for your workstation
+  pin_memory: true
+  persistent_workers: true
+
+batching:
+  train_batch_size: 2     # QLoRA → will scale with grad accumulation
+  val_batch_size: 1
+  shuffle: true
+
+tokenization:
+  max_length: 2048        # matches model config
+  truncation: true
+  padding: "max_length"
+
+seed: 42

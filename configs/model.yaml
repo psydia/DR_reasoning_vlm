@@ -1,0 +1,49 @@
+# ===================================================================
+# Model Configuration for Qwen3-VL-4B-Instruct SFT (QLoRA)
+# ===================================================================
+
+model:
+  name: "Qwen/Qwen3-VL-4B-Instruct"
+  trust_remote_code: true
+
+dtype:
+  use_bf16: true        # A6000 supports BF16 → safest and fastest
+  use_fp16: false       # Only use FP16 if BF16 gives issues
+
+vision:
+  freeze_vision: true   # FUNDAMENTAL: No need to train the vision tower
+  image_size: 448       # Qwen default (do NOT change this)
+  max_num_images: 1
+
+generation:
+  max_length: 2048      # output JSON is long; keep enough context
+  min_length: 4
+  top_p: 0.9
+  temperature: 0.2      # low → stable JSON generation
+  repetition_penalty: 1.05
+
+gradient_checkpointing: 
+  enabled: true  # saves memory during training
+
+lora:
+  enabled: true
+  r: 64                 # good balance for reasoning-heavy tasks
+  alpha: 32
+  dropout: 0.05
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+    - "visual_projection"     # cross-modal connector
+  lora_bias: "none"           # recommended for Qwen
+  task_type: "CAUSAL_LM"
+
+# Optional: if you want full finetuning later
+full_finetune:
+  enabled: false
+  train_vision_tower: false
+  train_language_model: true

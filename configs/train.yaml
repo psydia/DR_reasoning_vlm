@@ -1,0 +1,45 @@
+# ===================================================================
+# Training Configuration for Qwen3-VL-4B-Instruct SFT
+# ===================================================================
+
+training:
+  num_epochs: 50               # generally enough for SFT; adjust after observing val loss
+  gradient_accumulation_steps: 8   # effective batch = 2*8 = 16 (good for stability)
+  max_grad_norm: 1.0
+  seed: 42
+
+optimizer:
+  name: "adamw"
+  lr: 2e-4                    # typical LR for QLoRA on 4B models
+  weight_decay: 0.01
+  betas: [0.9, 0.95]
+  eps: 1e-8
+
+scheduler:
+  name: "cosine"
+  warmup_steps: 200          # warmup to stabilize multimodal training
+  min_lr_ratio: 0.1          # final LR = 0.1 * initial LR
+
+logging:
+  log_every: 20              # print training loss every 20 steps
+  use_wandb: false           # set to true if you want W&B tracking
+
+evaluation:
+  eval_every_steps: 500      # evaluate periodically based on training speed
+  early_stopping:
+    enabled: true
+    patience: 3              # stop if val loss doesn’t improve for 3 evals
+    min_delta: 0.0           # improvement threshold
+  save_best:
+    enabled: true
+    metric: "val_loss"       # monitor validation loss ONLY
+    mode: "min"              # lower val loss = better model
+
+checkpointing:
+  output_dir: "/data1/Sadia/RL_initial_datasets/outputs/checkpoints/"
+  save_every: null           # disable periodic checkpointing
+  save_best_only: true       # only keep the best model (reduces disk usage)
+
+mixed_precision:
+  use_bf16: true
+  use_fp16: false            # only use if BF16 causes any issues
